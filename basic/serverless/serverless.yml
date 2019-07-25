@@ -1,13 +1,20 @@
-service: basic
+service:
+  name: basic
+
+plugins:
+  - serverless-webpack
 
 provider:
   name: aws
   runtime: nodejs10.x
 
+package:
+  individually: true
+
 functions:
 
   hello:
-    handler: handler.hello
+    handler: hello.handler
     events:
       - http:
           path: /hello
