@@ -1,0 +1,35 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowLambdaToCreateLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream"
+      ],
+      "Resource": [
+        "arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${name}*:*"
+      ]
+    },
+    {
+      "Sid": "AllowLambdaToCreateLogEvents",
+      "Effect": "Allow",
+      "Action": [
+        "logs:PutLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${name}*:*:*"
+      ]
+    },
+    {
+      "Sid": "AllowLambdaToReadSpecificParameters",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParametersByPath"
+      ],
+      "Resource": [
+        "arn:aws:ssm:${region}:${account}:parameter/${name}/*"
+      ]
+    }
+  ]
+}
