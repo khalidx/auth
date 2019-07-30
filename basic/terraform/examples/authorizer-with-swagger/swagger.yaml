@@ -1,0 +1,36 @@
+swagger: "2.0"
+info:
+  title: authorizer-with-swagger-api
+  description: A sample API for demonstrating the authorizer.
+  version: 1.0.0
+schemes:
+  - https
+x-amazon-apigateway-gateway-responses:
+  UNAUTHORIZED:
+    statusCode: '401'
+    responseParameters:
+      gatewayresponse.header.WWW-Authenticate: "'Basic'"
+    responseTemplates:
+      application/json: '{"message": "$context.error.messageString" }'
+paths:
+  /hello:
+    get:
+      summary: Returns a hello world message
+      description: Calling this method will return "Hello world!" if properly authenticated.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+      x-amazon-apigateway-integration:
+        type: mock
+        passthroughBehavior: when_no_match
+        requestTemplates:
+          application/json: |
+            { "statusCode" : 200 }
+        responses:
+          "default":
+            statusCode: "200"
+            responseTemplates:
+              application/json: |
+                { "message": "Hello world!" }

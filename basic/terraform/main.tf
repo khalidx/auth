@@ -68,7 +68,7 @@ resource "aws_iam_policy" "lambda-execution-policy" {
     region    = "${local.region}"
     account   = "${local.account}"
     name      = "${var.name}"
-  })}"  
+  })}"
 }
 
 # Attaches the execution policy to the role.
