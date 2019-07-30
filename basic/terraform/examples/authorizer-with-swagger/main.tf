@@ -20,9 +20,20 @@ resource "aws_api_gateway_rest_api" "api" {
   })}"
 }
 
+# Force re-deployment if the Swagger spec or dependencies change.
+#   This has nothing to do with this module. This is just a way
+#   to make sure the latest API is always deployed. This is an
+#   existing open issue in terraform.
+# https://github.com/hashicorp/terraform/issues/6613
+# https://github.com/terraform-providers/terraform-provider-aws/issues/162
+# https://github.com/terraform-providers/terraform-provider-aws/pull/9245
 resource "aws_api_gateway_deployment" "api-deployment" {
-  rest_api_id = "${aws_api_gateway_rest_api.api.id}"
-  stage_name  = "test"
+  rest_api_id       = "${aws_api_gateway_rest_api.api.id}"
+  stage_name        = "test"
+  stage_description = "swaggerHash is ${filebase64sha256("${path.module}/swagger.yaml")}"
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 output "api-deployment-url" {
