@@ -8,7 +8,9 @@ schemes:
 x-amazon-apigateway-api-key-source: "AUTHORIZER"
 securityDefinitions:
   basicAuth:
-    type: basic
+    type: apiKey
+    name: Authorization
+    in: header
     x-amazon-apigateway-authtype: "custom"
     x-amazon-apigateway-authorizer:
       type: token
@@ -16,8 +18,6 @@ securityDefinitions:
       authorizerCredentials: "${authorizer-credentials}"
       identityValidationExpression: "^x-[a-z]+"
       authorizerResultTtlInSeconds: 300
-security:
-  - basicAuth: []
 responses:
   UnauthorizedError:
     description: Authentication information is missing or invalid
@@ -36,6 +36,8 @@ paths:
     get:
       summary: Returns a hello world message
       description: Calling this method will return "Hello world!" if properly authenticated.
+      security:
+        - basicAuth: []
       produces:
         - application/json
       responses:
