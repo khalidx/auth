@@ -5,9 +5,17 @@ info:
   version: 1.0.0
 schemes:
   - https
+x-amazon-apigateway-api-key-source: "AUTHORIZER"
 securityDefinitions:
   basicAuth:
     type: basic
+    x-amazon-apigateway-authtype: "custom"
+    x-amazon-apigateway-authorizer:
+      type: token
+      authorizerUri: "${authorizer-uri}"
+      authorizerCredentials: "${authorizer-credentials}"
+      identityValidationExpression: "^x-[a-z]+"
+      authorizerResultTtlInSeconds: 300
 security:
   - basicAuth: []
 responses:

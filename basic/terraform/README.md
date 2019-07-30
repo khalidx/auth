@@ -2,6 +2,9 @@
 
 - [authorizer-basic](#authorizer-basic)
   - [Usage](#usage)
+    - [With Swagger](#with-swagger)
+    - [Without Swagger](#without-swagger)
+  - [Support](#support)
 
 ## Usage
 
@@ -33,13 +36,63 @@ module "authorizer" {
 
 This module allows you to configure your AWS API Gateway with a Swagger/OpenAPI specification document. If you *aren't* using Swagger, the module will still correctly configure your API.
 
-If you *are* using Swagger, set `swagger = true` in the module configuration, and ensure that your Swagger specification includes the following statements at the top-level in the document.
+To see an example of this module fully imported and configured, browse either:
+
+- the `./examples/authorizer-with-swagger/` directory
+- the `./examples/authorizer-without-swagger/` directory
+
+Both examples deploy a sample API to the AWS API Gateway that is properly configured to use the authorizer.
+
+For the Swagger example, pay special attention to any `x-amazon-apigateway-` configurations in the `swagger.yaml` file as well as the comments in the well-documented `main.tf` file. Reading both documents in the example will help you understand how all the components fit and work together.
+
+To deploy an example, browse into the directory for the example and run the following commands.
+
+```sh
+terraform init
+terraform apply
+```
+
+### With Swagger
+
+If you *are* using Swagger:
+
+1. import the module:
+
+```terraform
+module "authorizer" {
+  source  = "git::git@github.com:khalidx/auth.git//basic/terraform?ref=v1.0.0"
+}
+```
+
+1. configure your API Gateway using your Swagger file; for example:
+
+```terraform
+resource "aws_api_gateway_rest_api" "api" {
+  ...
+
+  body                     = "${templatefile("${path.module}/swagger.yaml", {
+    authorizer-uri         = "${module.authorizer.authorizer-uri}"
+    authorizer-credentials = "${module.authorizer.authorizer-credentials}"
+  })}"
+}
+```
+   
+3. ensure that your Swagger specification includes the following statements at the top-level in the document:
 
 ```json
 {
+  "x-amazon-apigateway-api-key-source": "AUTHORIZER",
   "securityDefinitions": {
     "basicAuth": {
-      "type": "basic"
+      "type": "basic",
+      "x-amazon-apigateway-authtype": "custom",
+      "x-amazon-apigateway-authorizer": {
+        "type": "token",
+        "authorizerUri": "${authorizer-uri}",
+        "authorizerCredentials": "${authorizer-credentials}",
+        "identityValidationExpression": "^x-[a-z]+",
+        "authorizerResultTtlInSeconds": 300
+      }
     }
   },
   "security": [
@@ -74,9 +127,17 @@ If you *are* using Swagger, set `swagger = true` in the module configuration, an
 Alternatively, the statements above, in YAML:
 
 ```yaml
+x-amazon-apigateway-api-key-source: "AUTHORIZER"
 securityDefinitions:
   basicAuth:
     type: basic
+    x-amazon-apigateway-authtype: "custom"
+    x-amazon-apigateway-authorizer:
+      type: token
+      authorizerUri: "${authorizer-uri}"
+      authorizerCredentials: "${authorizer-credentials}"
+      identityValidationExpression: "^x-[a-z]+"
+      authorizerResultTtlInSeconds: 300
 security:
   - basicAuth: []
 responses:
@@ -94,13 +155,41 @@ x-amazon-apigateway-gateway-responses:
       application/json: '{"message": "$context.error.messageString" }'
 ```
 
-To see an example of this module fully imported and configured, browse the `./examples/authorizer-with-swagger/` directory.
+### Without Swagger
 
-The example deploys a sample API to AWS API Gateway that is properly configured to use the authorizer. Pay special attention to any `x-amazon-apigateway-` configurations in the `swagger.yaml` file as well as the comments in the well-documented `main.tf` file. Reading both documents in the example will help you understand how all the components fit and work together.
+If you *aren't* using Swagger:
 
-To deploy an example, browse into the directory for the example and run the following commands.
+1. import the module, and set the `api-id` in the module configuration to the ID of your AWS API Gateway Rest API; for example:
 
-```sh
-terraform init
-terraform apply
+```terraform
+module "authorizer" {
+  source  = "git::git@github.com:khalidx/auth.git//basic/terraform?ref=v1.0.0"
+  api-id = "${aws_api_gateway_rest_api.api.id}"
+}
 ```
+
+2. ensure that your `aws_api_gateway_rest_api` resource has the `api_key_source` field; for example:
+
+```terraform
+resource "aws_api_gateway_rest_api" "api" {
+  ...
+
+  api_key_source = "${module.authorizer.api-key-source}"
+}
+```
+
+3. ensure that any `aws_api_gateway_method` resources in your `terraform` configuration have the proper authorizer-related fields; for example:
+
+```terraform
+resource "aws_api_gateway_method" "example-method" {
+  ...
+
+  authorization    = "${module.authorizer.authorization}"
+  authorizer_id    = "${module.authorizer.authorizer-id}"
+  api_key_required = "${module.authorizer.api-key-required}"
+}
+```
+
+## Support
+
+Open a GitHub issue to ask a question, report a bug, raise a concern, or request a new feature.
