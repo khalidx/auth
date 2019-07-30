@@ -126,4 +126,3 @@ resource "aws_iam_role_policy" "api-gateway-invocation-policy" {
     authorizer-arn = "${aws_lambda_function.lambda-authorizer-function.arn}"
   })}"
 }
-
