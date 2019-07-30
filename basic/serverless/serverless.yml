@@ -6,7 +6,13 @@ plugins:
 
 provider:
   name: aws
+  region: us-east-1
   runtime: nodejs10.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ssm:GetParametersByPath
+      Resource: "arn:aws:ssm:${opt:region, self:provider.region}:*:parameter/${opt.namespace, 'authorizer'}/*"
 
 package:
   individually: true
@@ -27,7 +33,8 @@ functions:
 
   authorizer:
     handler: authorizer.handler
-
+    environment:
+      PARAMETER_STORE_NAMESPACE: ${opt.namespace, 'authorizer'}
 
 resources:
   Resources:
