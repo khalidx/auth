@@ -21,7 +21,6 @@ locals {
 # The authorizer lambda function.
 resource "aws_lambda_function" "lambda-authorizer-function" {
   depends_on                    = [
-    "aws_iam_role_policy_attachment.lambda-execution-policy-attachment",
     "aws_cloudwatch_log_group.lambda-authorizer-log-group"
   ]
   function_name                 = "${var.name}"
@@ -62,19 +61,14 @@ resource "aws_iam_role" "lambda-authorizer-function-role" {
 
 # The execution policy for the role above. This reads the policy from a JSON
 #   file and interpolates variables referenced in the file.
-resource "aws_iam_policy" "lambda-execution-policy" {
+resource "aws_iam_role_policy" "lambda-execution-policy" {
   name_prefix = "${var.name}"
+  role        = "${aws_iam_role.lambda-authorizer-function-role.id}"
   policy      = "${templatefile("${path.module}/policies/lambda-execution.json", {
     region    = "${local.region}"
     account   = "${local.account}"
     name      = "${var.name}"
   })}"
-}
-
-# Attaches the execution policy to the role.
-resource "aws_iam_role_policy_attachment" "lambda-execution-policy-attachment" {
-  role       = "${aws_iam_role.lambda-authorizer-function-role.name}"
-  policy_arn = "${aws_iam_policy.lambda-execution-policy.arn}"
 }
 
 # Configures a response on the API Gateway Rest API when requests are not
