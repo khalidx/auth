@@ -8,6 +8,7 @@ A collection of authentication and authorization implementations for AWS API Gat
 - [auth](#auth)
   - [To do](#to-do)
   - [Basic](#basic)
+    - [Usage](#usage)
   - [IAM](#iam)
   - [JWT](#jwt)
 
@@ -15,6 +16,9 @@ A collection of authentication and authorization implementations for AWS API Gat
 
 - [ ] split out basic vs basic with api key
 - [ ] deploy with serverless or deploy with terraform or cloudformation + aws one-click
+- [ ] strip credentials from header before proceeding to lambda
+- [ ] ensure API gateway enforces API key usage identifier
+- [ ] terraform the creation of the usage plan
 
 ## Basic
 
@@ -33,6 +37,18 @@ Browse the `./basic/` directory for a sample implementation that uses:
 - Lambda
 - Parameter Store
 - Terraform
+
+### Usage
+
+- Ensure all API methods require API keys
+- Create an API key for your API consumer
+- Configure settings in the parameter store
+
+Configure your keys with the following namespace:
+
+`/<application>/<username>/password`
+`/<application>/<username>/whitelist`
+`/<application>/<username>/apiKey`
 
 ## IAM
 
