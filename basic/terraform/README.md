@@ -64,7 +64,7 @@ module "authorizer" {
 }
 ```
 
-1. configure your API Gateway using your Swagger file; for example:
+2. configure your API Gateway using your Swagger file; for example:
 
 ```terraform
 resource "aws_api_gateway_rest_api" "api" {
@@ -76,15 +76,45 @@ resource "aws_api_gateway_rest_api" "api" {
   })}"
 }
 ```
+
+3. ensure any operations to be protected reference the `security` definition; for example:
+
+```json
+...
+
+"paths": {
+  "/hello": {
+      "get": {
+        "security": [ { "basicAuth" : [] } ]
+```
+
+Alternatively, in YAML:
+
+```yaml
+...
+
+paths:
+  /hello:
+    get:
+      security:
+        - basicAuth: []
+```
+
+> This is a known limitation of AWS API Gateway, where security cannot be applied to the whole API, and must 
+> be applied on a per-operation basis (sad).
+> Read more about API Gateway limitations here:
+> https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-known-issues.html
    
-3. ensure that your Swagger specification includes the following statements at the top-level in the document:
+4. ensure that your Swagger specification includes the following statements at the top-level in the document:
 
 ```json
 {
   "x-amazon-apigateway-api-key-source": "AUTHORIZER",
   "securityDefinitions": {
     "basicAuth": {
-      "type": "basic",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
       "x-amazon-apigateway-authtype": "custom",
       "x-amazon-apigateway-authorizer": {
         "type": "token",
@@ -95,11 +125,6 @@ resource "aws_api_gateway_rest_api" "api" {
       }
     }
   },
-  "security": [
-    {
-      "basicAuth": []
-    }
-  ],
   "responses": {
     "UnauthorizedError": {
       "description": "Authentication information is missing or invalid",
@@ -130,7 +155,9 @@ Alternatively, the statements above, in YAML:
 x-amazon-apigateway-api-key-source: "AUTHORIZER"
 securityDefinitions:
   basicAuth:
-    type: basic
+    type: apiKey
+    name: Authorization
+    in: header
     x-amazon-apigateway-authtype: "custom"
     x-amazon-apigateway-authorizer:
       type: token
@@ -138,8 +165,6 @@ securityDefinitions:
       authorizerCredentials: "${authorizer-credentials}"
       identityValidationExpression: "^x-[a-z]+"
       authorizerResultTtlInSeconds: 300
-security:
-  - basicAuth: []
 responses:
   UnauthorizedError:
     description: Authentication information is missing or invalid
