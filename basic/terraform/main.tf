@@ -75,10 +75,10 @@ resource "aws_iam_role_policy" "lambda-execution-policy" {
 #   authenticated. This response returns the `WWW-Authenticate` header, as
 #   described by the HTTP Basic Authentication scheme.
 resource "aws_api_gateway_gateway_response" "api-gateway-unauthorized-response" {
-  # Only create this resource if swagger=false, otherwise the Swagger
+  # Only create this resource if api-id is provided, otherwise the Swagger
   #   document the user is using to configure their API is expected to have 
   #   this configuration.
-  count = "${var.swagger ? 0 : 1}" 
+  count = "${var.api-id == "" ? 0 : 1}" 
   rest_api_id   = "${var.api-id}"
   status_code   = "401"
   response_type = "UNAUTHORIZED"
@@ -93,6 +93,10 @@ resource "aws_api_gateway_gateway_response" "api-gateway-unauthorized-response" 
 # The API Gateway Rest API Authorizer configuration that associates the API 
 #   with the authorizer.
 resource "aws_api_gateway_authorizer" "api-gateway-authorizer" {
+  # Only create this resource if api-id is provided, otherwise the Swagger
+  #   document the user is using to configure their API is expected to have 
+  #   this configuration.
+  count = "${var.api-id == "" ? 0 : 1}" 
   name                             = "${var.name}"
   rest_api_id                      = "${var.api-id}"
   authorizer_uri                   = "${aws_lambda_function.lambda-authorizer-function.invoke_arn}"
