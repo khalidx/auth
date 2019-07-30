@@ -28,7 +28,7 @@ To use this module directly, import it into your `terraform` document with the f
 
 ```terraform
 module "authorizer" {
-  source = "git::git@github.com:khalidx/auth.git//basic/terraform?ref=v1.0.0"
+  source = "github.com/khalidx/auth.git//basic/terraform?ref=master"
   
   ...module configuration options go here...
 }
@@ -60,7 +60,7 @@ If you *are* using Swagger:
 
 ```terraform
 module "authorizer" {
-  source  = "git::git@github.com:khalidx/auth.git//basic/terraform?ref=v1.0.0"
+  source = "github.com/khalidx/auth.git//basic/terraform?ref=master"
 }
 ```
 
