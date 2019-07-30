@@ -5,6 +5,17 @@ info:
   version: 1.0.0
 schemes:
   - https
+securityDefinitions:
+  basicAuth:
+    type: basic
+security:
+  - basicAuth: []
+responses:
+  UnauthorizedError:
+    description: Authentication information is missing or invalid
+    headers:
+      WWW_Authenticate:
+        type: string
 x-amazon-apigateway-gateway-responses:
   UNAUTHORIZED:
     statusCode: '401'
@@ -22,6 +33,8 @@ paths:
       responses:
         200:
           description: OK
+        401:
+          $ref: '#/responses/UnauthorizedError'
       x-amazon-apigateway-integration:
         type: mock
         passthroughBehavior: when_no_match

@@ -33,10 +33,30 @@ module "authorizer" {
 
 This module allows you to configure your AWS API Gateway with a Swagger/OpenAPI specification document. If you *aren't* using Swagger, the module will still correctly configure your API.
 
-If you *are* using Swagger, set `swagger = true` in the module configuration, and ensure that your Swagger specification includes the following `x-amazon-apigateway` statements at the top-level in the document.
+If you *are* using Swagger, set `swagger = true` in the module configuration, and ensure that your Swagger specification includes the following statements at the top-level in the document.
 
 ```json
 {
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "responses": {
+    "UnauthorizedError": {
+      "description": "Authentication information is missing or invalid",
+      "headers": {
+        "WWW_Authenticate": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "x-amazon-apigateway-gateway-responses": {
     "UNAUTHORIZED": {
       "statusCode": "401",
@@ -54,6 +74,17 @@ If you *are* using Swagger, set `swagger = true` in the module configuration, an
 Alternatively, the statements above, in YAML:
 
 ```yaml
+securityDefinitions:
+  basicAuth:
+    type: basic
+security:
+  - basicAuth: []
+responses:
+  UnauthorizedError:
+    description: Authentication information is missing or invalid
+    headers:
+      WWW_Authenticate:
+        type: string
 x-amazon-apigateway-gateway-responses:
   UNAUTHORIZED:
     statusCode: '401'
