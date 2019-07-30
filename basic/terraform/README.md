@@ -270,9 +270,9 @@ The format is `/<authorizer-name>/<user-name>/<key>`.
 
 The keys we will be creating are:
 
-`/authorizer-basic/first-service-user/apiKey`
-`/authorizer-basic/first-service-user/password`
-`/authorizer-basic/first-service-user/whitelist`
+- `/authorizer-basic/first-service-user/apiKey`
+- `/authorizer-basic/first-service-user/password`
+- `/authorizer-basic/first-service-user/whitelist`
 
 You'll notice we are using the same name, *first-service-user*, that we used when creating the name of the new API Key. This doesn't do anything *functionally*, but allows us to easily visually associate api keys to usernames.
 
