@@ -8,5 +8,11 @@ module "authorizer" {
 
   # Here are some common options that you can provide to the module. For a full list of  
   #   options (and more information about each one) see the variables.tf file.
-  name = "authorizer-with-swagger"
+  api-id = "${aws_api_gateway_rest_api.api.id}"
+  name   = "authorizer-with-swagger"
+}
+
+resource "aws_api_gateway_rest_api" "api" {
+  description = "A sample API for demonstrating the authorizer"
+  name = "authorizer-with-swagger-api"
 }

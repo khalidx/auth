@@ -31,6 +31,38 @@ module "authorizer" {
 }
 ```
 
+This module allows you to configure your AWS API Gateway with a Swagger/OpenAPI specification document. If you *aren't* using Swagger, the module will still correctly configure your API.
+
+If you *are* using Swagger, set `swagger = true` in the module configuration, and ensure that your Swagger specification includes the following `x-amazon-apigateway` statements at the top-level in the document.
+
+```json
+{
+  "x-amazon-apigateway-gateway-responses": {
+    "UNAUTHORIZED": {
+      "statusCode": "401",
+      "responseParameters": {
+        "gatewayresponse.header.WWW-Authenticate": "'Basic'"
+      },
+      "responseTemplates": {
+        "application/json": "{\"message\": \"$context.error.messageString\" }"
+      }
+    }
+  }
+}
+```
+
+Alternatively, the statements above, in YAML:
+
+```yaml
+x-amazon-apigateway-gateway-responses:
+  UNAUTHORIZED:
+    statusCode: '401'
+    responseParameters:
+      gatewayresponse.header.WWW-Authenticate: "'Basic'"
+    responseTemplates:
+      application/json: '{"message": "$context.error.messageString" }'
+```
+
 To see an example of this module fully imported and configured, browse the `./examples/authorizer-with-swagger/` directory.
 
 The example deploys a sample API to AWS API Gateway that is properly configured to use the authorizer. Pay special attention to any `x-amazon-apigateway-` configurations in the `swagger.yaml` file as well as the comments in the well-documented `main.tf` file. Reading both documents in the example will help you understand how all the components fit and work together.
