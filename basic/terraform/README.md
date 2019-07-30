@@ -4,6 +4,9 @@
   - [Usage](#usage)
     - [With Swagger](#with-swagger)
     - [Without Swagger](#without-swagger)
+  - [Managing API Consumers](#managing-api-consumers)
+    - [Creating a Usage Plan](#creating-a-usage-plan)
+    - [Adding an API consumer](#adding-an-api-consumer)
   - [Support](#support)
 
 ## Usage
@@ -214,6 +217,81 @@ resource "aws_api_gateway_method" "example-method" {
   api_key_required = "${module.authorizer.api-key-required}"
 }
 ```
+
+## Managing API Consumers
+
+After deploying this module, you'll want to configure some credentials for other users or services to start consuming your API.
+
+### Creating a Usage Plan
+
+1. [Browse to the AWS API Gateway Console > Usage Plans > Create Usage Plan](https://console.aws.amazon.com/apigateway/home#/usage-plans/create)
+
+![step 1](./docs/create-a-usage-plan-1.png)
+
+1. Associate a stage of your deployed API to the usage plan.
+
+![step 2](./docs/create-a-usage-plan-2.png)
+
+3. Click "Done". We'll add API keys in the next section.
+
+![step 3](./docs/create-a-usage-plan-3.png)
+
+### Adding an API consumer
+
+1. [Browse to the AWS API Gateway Console > Usage Plans](https://console.aws.amazon.com/apigateway/home#/usage-plans) and select a usage plan that you have created.
+
+![step 1](./docs/adding-an-api-consumer-1.png)
+
+2. Browse to the Usage Plan's `API Keys` and click `Create API Key and add to Usage Plan`.
+
+![step 2](./docs/adding-an-api-consumer-2.png)
+
+3. Enter data into the fields and click save.
+
+![step 3](./docs/adding-an-api-consumer-3.png)
+
+4. Click the newly created API Key, then click "Show" to display the API Key value. Copy the API Key, we'll use it in the next step.
+
+![step 4](./docs/adding-an-api-consumer-4.png)
+
+5. [Browse to the AWS SSM Parameter Store Console](https://console.aws.amazon.com/systems-manager/parameters)
+
+![step 5](./docs/adding-an-api-consumer-5.png)
+
+6. Click on `Create Parameter`. We'll be creating three `SecureString` parameters for the new API consumer:
+
+- one for the api key
+- one for the password
+- one for whitelisted operations that the consumer can access
+
+All parameters are namespaced by the application name that you've set in the module configuration, which defaults to `authorizer-basic`.
+
+The format is `/<authorizer-name>/<user-name>/<key>`.
+
+The keys we will be creating are:
+
+`/authorizer-basic/first-service-user/apiKey`
+`/authorizer-basic/first-service-user/password`
+`/authorizer-basic/first-service-user/whitelist`
+
+You'll notice we are using the same name, *first-service-user*, that we used when creating the name of the new API Key. This doesn't do anything *functionally*, but allows us to easily visually associate api keys to usernames.
+
+Here's what the console will look like when configuring the `apiKey` parameter.
+
+![step 6](./docs/adding-an-api-consumer-6.png)
+
+Repeat this process for the `password` key, pasting a generated password in the `Value` field.
+
+Also repeat this process for the `whitelist` key, pasting an array of allowed operations for the user to access. For example, the `Value` could be:
+
+```json
+[
+  "GET/hello",
+  "POST/goodbye/1"
+]
+```
+
+This will provision the API consumer with the ability to only access that part of the API.
 
 ## Support
 
