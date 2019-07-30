@@ -20,7 +20,7 @@ output "authorization" {
 
 output "authorizer-id" {
   description = "The id of the API Gateway authorizer configuration"
-  value = "${aws_api_gateway_authorizer.api-gateway-authorizer.id}"
+  value = [ "${aws_api_gateway_authorizer.api-gateway-authorizer.*.id}" ]
 }
 
 output "api-key-required" {
