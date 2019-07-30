@@ -89,3 +89,37 @@ resource "aws_api_gateway_gateway_response" "api-gateway-unauthorized-response" 
     "application/json" = "{'message':$context.error.messageString}"
   }
 }
+
+# The API Gateway Rest API Authorizer configuration that associates the API 
+#   with the authorizer.
+resource "aws_api_gateway_authorizer" "api-gateway-authorizer" {
+  name                             = "${var.name}"
+  rest_api_id                      = "${var.api-id}"
+  authorizer_uri                   = "${aws_lambda_function.lambda-authorizer-function.invoke_arn}"
+  authorizer_credentials           = "${aws_iam_role.api-gateway-role.arn}"
+  type                             = "REQUEST"
+  identity_source                  = "method.request.header.Authorization"
+  authorizer_result_ttl_in_seconds = 300
+}
+
+# The role for the API Gateway. This role allows the API Gateway to invoke 
+#   the lambda authorizer function.
+resource "aws_iam_role" "api-gateway-role" {
+  name_prefix          = "${var.name}"
+  permissions_boundary = "${var.permissions-boundary-for-roles}"
+  assume_role_policy   = "${file("${path.module}/policies/api-gateway-assume-role.json")}"
+  tags = {
+    Name               = "${var.name}"
+  }
+}
+
+# The execution policy for the role above. This reads the policy from a JSON
+#   file and interpolates variable referenced in the file.
+resource "aws_iam_role_policy" "api-gateway-invocation-policy" {
+  name_prefix      = "${var.name}"
+  role             = "${aws_iam_role.api-gateway-role.id}"
+  policy           = "${templatefile("${path.module}/policies/api-gateway-invocation.json", {
+    authorizer-arn = "${aws_lambda_function.lambda-authorizer-function.arn}"
+  })}"
+}
+
