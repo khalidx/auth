@@ -99,10 +99,10 @@ resource "aws_api_gateway_authorizer" "api-gateway-authorizer" {
   count = "${var.api-id == "" ? 0 : 1}" 
   name                             = "${var.name}"
   rest_api_id                      = "${var.api-id}"
+  type                             = "TOKEN"
   authorizer_uri                   = "${aws_lambda_function.lambda-authorizer-function.invoke_arn}"
   authorizer_credentials           = "${aws_iam_role.api-gateway-role.arn}"
-  type                             = "REQUEST"
-  identity_source                  = "method.request.header.Authorization"
+  identity_validation_expression   = "^x-[a-z]+"
   authorizer_result_ttl_in_seconds = 300
 }
 
