@@ -228,7 +228,7 @@ After deploying this module, you'll want to configure some credentials for other
 
 ![step 1](./docs/create-a-usage-plan-1.png)
 
-1. Associate a stage of your deployed API to the usage plan.
+2. Associate a stage of your deployed API to the usage plan.
 
 ![step 2](./docs/create-a-usage-plan-2.png)
 
