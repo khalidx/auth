@@ -22,10 +22,10 @@ export const handler: CustomAuthorizerHandler = (event, context, callback) => {
 }
 
 async function getCredentials (event: CustomAuthorizerEvent): Promise<Credentials> {
-  // Ensure the `Authorization` header exists
-  if (!event.headers || !event.headers.Authorization) throw new Error('No Authorization header provided')
+  // Ensure the authorizationToken exists
+  if (!event.authorizationToken || event.authorizationToken.length == 0) throw new Error('No Authorization token provided')
   // Decode the credentials from the header
-  let credentials = Buffer.from(event.headers.Authorization.replace('Basic ', ''), 'base64').toString().split(':')
+  let credentials = Buffer.from(event.authorizationToken.replace('Basic ', ''), 'base64').toString().split(':')
   return {
     username: credentials[0],
     password: credentials[1]
