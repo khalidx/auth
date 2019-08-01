@@ -123,7 +123,6 @@ paths:
         "type": "token",
         "authorizerUri": "${authorizer-uri}",
         "authorizerCredentials": "${authorizer-credentials}",
-        "identityValidationExpression": "^x-[a-z]+",
         "authorizerResultTtlInSeconds": 300
       }
     }
@@ -166,7 +165,6 @@ securityDefinitions:
       type: token
       authorizerUri: "${authorizer-uri}"
       authorizerCredentials: "${authorizer-credentials}"
-      identityValidationExpression: "^x-[a-z]+"
       authorizerResultTtlInSeconds: 300
 responses:
   UnauthorizedError:
