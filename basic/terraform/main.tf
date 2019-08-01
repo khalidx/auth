@@ -3,9 +3,6 @@ terraform {
   required_version = ">= 0.12"
 }
 
-# The terraform provider for the Amazon Web Services cloud.
-provider "aws" {}
-
 # Provides data about the current region.
 data "aws_region" "current" {}
 
